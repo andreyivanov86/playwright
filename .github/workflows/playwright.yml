@@ -15,7 +15,7 @@ jobs:
           node-version: 18
       - name: Install dependencies
         run: npm ci
-      - name: Testmo
+      - name: Install Testmo CLI
         run: npm install --no-save @testmo/testmo-cli
       - name: Run test and report to Testmo
         run: |
@@ -23,8 +23,7 @@ jobs:
             --instance "$TESTMO_URL" \
             --project-id 1 \
             --name "Playwright test run" \
-            --source "playwright" \
-            --resources resources.json \
+            --source "unit-tests" \
             --results testmo/*.xml \
             -- npx playwright test
         env:
