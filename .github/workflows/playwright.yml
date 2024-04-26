@@ -17,13 +17,13 @@ jobs:
         run: npm ci
       - name: Testmo
         run: npm install --no-save @testmo/testmo-cli
-      - name: Testmo additional fields
-        run: | 
-          npx testmo automation:resources:add-field --name git --type string \
-            --value ${GITHUB_SHA:0:7} --resources resources.json
-          RUN_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-          npx testmo automation:resources:add-link --name build \
-            --url $RUN_URL --resources resources.json
+      # - name: Testmo additional fields
+      #   run: | 
+      #     npx testmo automation:resources:add-field --name git --type string \
+      #       --value ${GITHUB_SHA:0:7} --resources resources.json
+      #     RUN_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+      #     npx testmo automation:resources:add-link --name build \
+      #       --url $RUN_URL --resources resources.json
       - name: Run your tests
         run: npx playwright test
       - uses: actions/upload-artifact@v4
