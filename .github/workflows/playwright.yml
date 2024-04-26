@@ -17,15 +17,7 @@ jobs:
         run: npm ci
       - name: Testmo
         run: npm install --no-save @testmo/testmo-cli
-      - name: Run your tests
-        run: npx playwright test
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: testmo-report
-          path: playwright-report/
-          retention-days: 30
-      - name: Upload results to Testmo
+      - name: Run test and report to Testmo
         run: |
           npx testmo automation:run:submit \
             --instance "$TESTMO_URL" \
@@ -33,7 +25,8 @@ jobs:
             --name "Playwright test run" \
             --source "playwright" \
             --resources resources.json \
-            --results playwright-report/*.xml \
+            --results testmo/*.xml \
+            -- npx playwright test
         env:
           HOME: /root
           TESTMO_URL: https://briostack.testmo.net/
