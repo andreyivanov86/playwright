@@ -2,8 +2,6 @@ name: Playwright Tests
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
 jobs:
   playwright:
     name: 'Playwright Tests'
@@ -17,7 +15,34 @@ jobs:
           node-version: 18
       - name: Install dependencies
         run: npm ci
+      - name: Testmo
+        run: npm install --no-save @testmo/testmo-cli
+      - name: Testmo additional fields
+        run: | 
+          npx testmo automation:resources:add-field --name git --type string \
+            --value ${GITHUB_SHA:0:7} --resources resources.json
+          RUN_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          npx testmo automation:resources:add-link --name build \
+            --url $RUN_URL --resources resources.json
       - name: Run your tests
         run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: testmo-report
+          path: playwright-report/
+          retention-days: 30
+      - name: Upload results to Testmo
+        run: |
+          npx testmo automation:run:submit \
+            --instance "$TESTMO_URL" \
+            --project-id 1 \
+            --name "Playwright test run" \
+            --source "unit-tests" \
+            --resources resources.json \
+            --results playwright-report/*.xml \
+            -- npm run mocha-junit # Note space after -- 
         env:
           HOME: /root
+          TESTMO_URL: https://briostack.testmo.net/
+          TESTMO_TOKEN: testmo_api_eyJpdiI6IlBOVTZCNklBZjZtS1ZLWUZ1RlE3WlE9PSIsInZhbHVlIjoiQW56RDA3TFpmdm0vV3NYank3eUhCU0NKa3Nza0ZBOUZXai9EeXdLTXZhVT0iLCJtYWMiOiIyN2U3ZjM2YjlmOWEyNDNmZTE3YTg2OWRkOWEwN2Y5YTczZTI3YzY1MGQxN2EyZjIwOWFjYmYwMWJkNmQyYzFiIiwidGFnIjoiIn0=
